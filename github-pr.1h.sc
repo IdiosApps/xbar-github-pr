@@ -8,8 +8,14 @@
 // # <xbar.dependencies>java,scala,scala-cli</xbar.dependencies>
 // # <xbar.version>1.0.0</xbar.version>
 
-
 // Can run file manually, or refresh xbar to check changes:
     // `scala-cli ./github-pr.1h.sc`
-println("Hello world")
+
+import $ivy.`com.lihaoyi::requests:0.7.1`
+import $ivy.`com.lihaoyi::ujson:2.0.0`
+
+val resp = requests.get("https://api.github.com/users/baeldung")
+val data = ujson.read(resp.text())
+println(data("login"))
+
 
