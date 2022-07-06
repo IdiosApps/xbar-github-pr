@@ -29,6 +29,7 @@ val hostname = "hostname"
 val org = "ourOrg"
 val repos = List("aRepo", "anotherRepo")
 val username = "yourUsername"
+val requiredReviewCount = 2
 
 val prs = repos.map(repo => requests.get(
     s"https://${hostname}/api/v3/repos/${org}/${repo}/pulls?",
@@ -43,3 +44,23 @@ val (myPrs, notMyPrs) = prs.arr
     .filter(pr => pr("draft").bool == false) // didn't find how to filter PRs in above query
     .partition(pr => pr("user")("login").str == username)
 
+def needReviewCount(prs: ArrayBuffer[ujson.Value]): Int = {
+    prs.map(pr => (pr("head")("repo")("name").str, pr("number")))
+    .map(tupple =>
+        val (repo, number) = tupple // tuple unpack workaround
+        requests.get(
+        s"https://${hostname}/api/v3/repos/${org}/${repo}/pulls/${number}/reviews",
+        headers = Map(
+            "Content-Type" -> "application/vnd.github.v3+json",
+            "Authorization" -> s"Bearer ${apiKey.get}"
+    )))
+    .map(resp => ujson.read(resp.text()))
+    .map(_.arr) 
+    .map(reviews => reviews
+        .filter(_("state").str == "APPROVED")
+        .distinctBy(_("user")("login").str)
+    )
+    .map(_.size)
+    .filter(_ < requiredReviewCount)
+    .size
+}
