@@ -28,6 +28,7 @@ if (api_key.isEmpty) {
 val hostname = "hostname"
 val org = "ourOrg"
 val repos = List("aRepo", "anotherRepo")
+val username = "yourUsername"
 
 val prs = repos.map(repo => requests.get(
     s"https://${hostname}/api/v3/repos/${org}/${repo}/pulls?",
@@ -38,5 +39,7 @@ val prs = repos.map(repo => requests.get(
     .map(response => ujson.read(response.text()))
     .reduceLeft(_.arr ++ _.arr) // be concise in display; combine all repo information
 
-println(prs)
+val (myPrs, notMyPrs) = prs.arr
+    .filter(pr => pr("draft").bool == false) // didn't find how to filter PRs in above query
+    .partition(pr => pr("user")("login").str == username)
 
