@@ -64,3 +64,5 @@ def needReviewCount(prs: ArrayBuffer[ujson.Value]): Int = {
     .filter(_ < requiredReviewCount)
     .size
 }
+
+println(s"👤👁️${needReviewCount(myPrs)}/${myPrs.size}‖👥 👀${needReviewCount(notMyPrs)}/${notMyPrs.size}")
