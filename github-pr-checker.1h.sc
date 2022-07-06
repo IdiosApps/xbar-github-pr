@@ -7,6 +7,7 @@
 // # <xbar.author.github>IdiosApps</xbar.author.github>
 // # <xbar.dependencies>java,scala,scala-cli</xbar.dependencies>
 // # <xbar.version>1.0.0</xbar.version>
+// # <xbar.abouturl>https://github.com/IdiosApps/xbar-github-pr</xbar.abouturl>
 // xbar config
 // xbar scripts can get env vars when either entered 1. in UI, or 2. directly here
 // # <xbar.var>string(XBAR_GITHUB_API_KEY=""): Github Personal Access Token</xbar.var>
