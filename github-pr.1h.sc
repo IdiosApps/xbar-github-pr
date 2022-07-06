@@ -65,4 +65,8 @@ def needReviewCount(prs: ArrayBuffer[ujson.Value]): Int = {
     .size
 }
 
-println(s"👤👁️${needReviewCount(myPrs)}/${myPrs.size}‖👥 👀${needReviewCount(notMyPrs)}/${notMyPrs.size}")
+if (myPrs.size == 0) {
+    println(s"👥 👁️${needReviewCount(notMyPrs)}/${notMyPrs.size}")
+} else {
+    println(s"👤👁️${needReviewCount(myPrs)}/${myPrs.size}‖👥 👀${needReviewCount(notMyPrs)}/${notMyPrs.size}")
+}
