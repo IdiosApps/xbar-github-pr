@@ -23,8 +23,20 @@ if (api_key.isEmpty) {
     System.exit(0)
 }
 
-val resp = requests.get("https://api.github.com/users/baeldung")
-val data = ujson.read(resp.text())
-println(data("login"))
+// For this script we'll use GitHub enterprise ...
+// ... so we need to specify our company's hostname, as in http(s)://[hostname]/api/v3
+val hostname = "hostname"
+val org = "ourOrg"
+val repos = List("aRepo", "anotherRepo")
 
+val prs = repos.map(repo => requests.get(
+    s"https://${hostname}/api/v3/repos/${org}/${repo}/pulls?",
+    headers = Map(
+        "Content-Type" -> "application/vnd.github.v3+json",
+        "Authorization" -> s"Bearer ${apiKey.get}"
+    )))
+    .map(response => ujson.read(response.text()))
+    .reduceLeft(_.arr ++ _.arr) // be concise in display; combine all repo information
+
+println(prs)
 
