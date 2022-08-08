@@ -20,26 +20,20 @@ import $ivy.`com.lihaoyi::ujson:2.0.0`
 
 import scala.collection.mutable.ArrayBuffer
 
-val apiKey = sys.env.getOrElse("XBAR_GITHUB_API_KEY", {
-    println("⚠️Set XBAR_GITHUB_API_KEY")
-    System.exit(0)
-})
+val apiKey = None // Some("123")// scala.util.Properties.envOrNone("XBAR_GITHUB_API_KEY")
 
-// For this script we'll use GitHub enterprise ...
-// ... so we need to specify our company's hostname, as in http(s)://[hostname]/api/v3
-val hostname = "hostname"
-val org = "ourOrg"
-val repos = List("aRepo", "anotherRepo")
-val username = "yourUsername"
+val headers: Map[String, String] =
+    apiKey.fold(Map("Content-Type" -> "application/vnd.github.v3+json"))(key => Map("Content-Type" -> "application/vnd.github.v3+json", "Authorization" -> s"Bearer $key"))
+
+val hostname = None // Some("hostname")
+val urlBase = hostname.fold("https://api.github.com")(s"https://$hostname/api/v3")
+
+val org = "com-lihaoyi" // "ourOrg" // can test org com-lihaoyi
+val repos = List("mill") // List("aRepo", "anotherRepo") // can test repo mill
+val username = "idiosapps" // "yourUsername"
 val requiredReviewCount = 2
 
-val headers = Map(
-    "Content-Type" -> "application/vnd.github.v3+json",
-    "Authorization" -> s"Bearer $apiKey"
-)
-
-val prs = repos.map(repo => requests.get(
-    s"https://$hostname/api/v3/repos/$org/$repo/pulls?", headers = headers))
+val prs = repos.map(repo => requests.get(s"$urlBase/repos/$org/$repo/pulls?", headers = headers))
     .map(response => ujson.read(response.text()))
     .reduceLeft(_.arr ++ _.arr) // be concise in display; combine all repo information
 
@@ -49,7 +43,7 @@ val (myPrs, notMyPrs) = prs.arr
 
 def needReviewCount(prs: ArrayBuffer[ujson.Value]): Int = {
     prs.map(pr => (pr("head")("repo")("name").str, pr("number")))
-    .map((repo, number) => requests.get(s"https://$hostname/api/v3/repos/$org/$repo/pulls/$number/reviews", headers = headers))
+    .map((repo, number) => requests.get(s"$urlBase/repos/$org/$repo/pulls/$number/reviews", headers = headers))
     .map(resp => ujson.read(resp.text()))
     .map(_.arr) 
     .map(reviews => reviews
