@@ -18,6 +18,8 @@
 import $ivy.`com.lihaoyi::requests:0.7.1`
 import $ivy.`com.lihaoyi::ujson:2.0.0`
 
+import scala.collection.mutable.ArrayBuffer
+
 val apiKey = sys.env.getOrElse("XBAR_GITHUB_API_KEY", {
     println("⚠️Set XBAR_GITHUB_API_KEY")
     System.exit(0)
@@ -37,7 +39,7 @@ val headers = Map(
 )
 
 val prs = repos.map(repo => requests.get(
-    s"https://${hostname}/api/v3/repos/${org}/${repo}/pulls?", headers = headers))
+    s"https://$hostname/api/v3/repos/$org/$repo/pulls?", headers = headers))
     .map(response => ujson.read(response.text()))
     .reduceLeft(_.arr ++ _.arr) // be concise in display; combine all repo information
 
@@ -47,9 +49,7 @@ val (myPrs, notMyPrs) = prs.arr
 
 def needReviewCount(prs: ArrayBuffer[ujson.Value]): Int = {
     prs.map(pr => (pr("head")("repo")("name").str, pr("number")))
-    .map(tupple =>
-        val (repo, number) = tupple // tuple unpack workaround
-        requests.get(s"https://${hostname}/api/v3/repos/${org}/${repo}/pulls/${number}/reviews", headers = headers))
+    .map((repo, number) => requests.get(s"https://$hostname/api/v3/repos/$org/$repo/pulls/$number/reviews", headers = headers))
     .map(resp => ujson.read(resp.text()))
     .map(_.arr) 
     .map(reviews => reviews
