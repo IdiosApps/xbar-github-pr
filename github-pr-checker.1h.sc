@@ -18,11 +18,10 @@
 import $ivy.`com.lihaoyi::requests:0.7.1`
 import $ivy.`com.lihaoyi::ujson:2.0.0`
 
-val api_key = sys.env.get("XBAR_GITHUB_API_KEY")
-if (api_key.isEmpty) {
-    println("Please provide Github PAT")
+val apiKey = sys.env.getOrElse("XBAR_GITHUB_API_KEY", {
+    println("⚠️Set XBAR_GITHUB_API_KEY")
     System.exit(0)
-}
+})
 
 // For this script we'll use GitHub enterprise ...
 // ... so we need to specify our company's hostname, as in http(s)://[hostname]/api/v3
@@ -36,7 +35,7 @@ val prs = repos.map(repo => requests.get(
     s"https://${hostname}/api/v3/repos/${org}/${repo}/pulls?",
     headers = Map(
         "Content-Type" -> "application/vnd.github.v3+json",
-        "Authorization" -> s"Bearer ${apiKey.get}"
+        "Authorization" -> s"Bearer $apiKey"
     )))
     .map(response => ujson.read(response.text()))
     .reduceLeft(_.arr ++ _.arr) // be concise in display; combine all repo information
@@ -53,7 +52,7 @@ def needReviewCount(prs: ArrayBuffer[ujson.Value]): Int = {
         s"https://${hostname}/api/v3/repos/${org}/${repo}/pulls/${number}/reviews",
         headers = Map(
             "Content-Type" -> "application/vnd.github.v3+json",
-            "Authorization" -> s"Bearer ${apiKey.get}"
+            "Authorization" -> s"Bearer $apiKey"
     )))
     .map(resp => ujson.read(resp.text()))
     .map(_.arr) 
