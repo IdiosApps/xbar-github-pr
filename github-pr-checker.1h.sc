@@ -31,12 +31,13 @@ val repos = List("aRepo", "anotherRepo")
 val username = "yourUsername"
 val requiredReviewCount = 2
 
+val headers = Map(
+    "Content-Type" -> "application/vnd.github.v3+json",
+    "Authorization" -> s"Bearer $apiKey"
+)
+
 val prs = repos.map(repo => requests.get(
-    s"https://${hostname}/api/v3/repos/${org}/${repo}/pulls?",
-    headers = Map(
-        "Content-Type" -> "application/vnd.github.v3+json",
-        "Authorization" -> s"Bearer $apiKey"
-    )))
+    s"https://${hostname}/api/v3/repos/${org}/${repo}/pulls?", headers = headers))
     .map(response => ujson.read(response.text()))
     .reduceLeft(_.arr ++ _.arr) // be concise in display; combine all repo information
 
@@ -48,12 +49,7 @@ def needReviewCount(prs: ArrayBuffer[ujson.Value]): Int = {
     prs.map(pr => (pr("head")("repo")("name").str, pr("number")))
     .map(tupple =>
         val (repo, number) = tupple // tuple unpack workaround
-        requests.get(
-        s"https://${hostname}/api/v3/repos/${org}/${repo}/pulls/${number}/reviews",
-        headers = Map(
-            "Content-Type" -> "application/vnd.github.v3+json",
-            "Authorization" -> s"Bearer $apiKey"
-    )))
+        requests.get(s"https://${hostname}/api/v3/repos/${org}/${repo}/pulls/${number}/reviews", headers = headers))
     .map(resp => ujson.read(resp.text()))
     .map(_.arr) 
     .map(reviews => reviews
