@@ -11,6 +11,8 @@ Always know how many PRs there are, how many need reviews, and if you need to me
 
 Before opening in an IDE (IntelliJ / VS Code), run `scala-cli setup-ide .`
 
+Run manually with `scala-cli ./github-pr.1h.sc`
+
 # Goals
 
 - [x] a
