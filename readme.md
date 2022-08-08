@@ -9,7 +9,7 @@ Always know how many PRs there are, how many need reviews, and if you need to me
 
 # Development
 
-Before opening in an IDE (IntelliJ / VS Code), run `scala-cli setup-ide .`
+Before opening in an IDE (IntelliJ / VS Code), run `scala-cli setup-ide .` See more info on scala-cli IDE integration [here](https://scala-cli.virtuslab.org/docs/commands/setup-ide/).
 
 Run manually with `scala-cli ./github-pr.1h.sc`
 
