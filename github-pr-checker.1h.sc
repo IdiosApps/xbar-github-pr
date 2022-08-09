@@ -20,7 +20,7 @@ import $ivy.`com.lihaoyi::ujson:2.0.0`
 
 import scala.collection.mutable.ArrayBuffer
 
-val apiKey = None // Some("123")// scala.util.Properties.envOrNone("XBAR_GITHUB_API_KEY")
+val apiKey = scala.util.Properties.envOrNone("XBAR_GITHUB_API_KEY")
 
 val headers: Map[String, String] =
     apiKey.fold(Map("Content-Type" -> "application/vnd.github.v3+json"))(key => Map("Content-Type" -> "application/vnd.github.v3+json", "Authorization" -> s"Bearer $key"))
